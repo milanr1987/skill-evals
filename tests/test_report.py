@@ -83,6 +83,15 @@ class ReportTests(unittest.TestCase):
         self.assertIn("INVALID: s", md)
         self.assertIn("| t | (whole suite) | token budget |", md)
 
+    def test_case_that_failed_to_load_is_listed(self):
+        self.write_day("2026-10-08", [self.case("c-pass", [run(1, True)])])
+        meta_path = self.raw / "2026-10-08-s.meta.json"
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta["load_errors"] = [["c-bad", "invalid case.yaml"]]
+        meta_path.write_text(json.dumps(meta), encoding="utf-8")
+        md = build_report("2026-10-08", self.raw, self.suites, self.results).read_text(encoding="utf-8")
+        self.assertIn("| s | c-bad | case file failed to load: invalid case.yaml |", md)
+
     def test_unknown_tokens_marked_incomplete(self):
         records = [{"case": "c-pass", "arm": "with", "index": 0, "usage": None, "models": []}]
         self.write_day("2026-10-08", [self.case("c-pass", [run(1, True)])], records=records)

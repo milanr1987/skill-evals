@@ -11,6 +11,7 @@ from bench.config import SuiteConfig
 MIN_VERSION = (2, 1, 269)
 _VERSION = re.compile(r"(\d+)\.(\d+)\.(\d+)")
 _CONFIG_WARNING = re.compile(r'case "([^"]+)": grader "[^"]+" cannot pass')
+_LOAD_ERROR = re.compile(r"^✗ .*?([^\\/]+)[\\/](?:case\.yaml|prompt\.md): (.+)$", re.MULTILINE)
 
 
 def parse_version(text: str) -> tuple[int, int, int] | None:
@@ -50,3 +51,8 @@ def invoke_eval(cmd: list[str]) -> EvalOutcome:
 
 def config_problem_cases(output: str) -> list[str]:
     return sorted(set(_CONFIG_WARNING.findall(output)))
+
+
+def load_error_cases(output: str) -> list[list[str]]:
+    """Cases whose case file failed to load; claude plugin eval skips them without a result."""
+    return [list(pair) for pair in sorted({(m.group(1), m.group(2).strip()) for m in _LOAD_ERROR.finditer(output)})]

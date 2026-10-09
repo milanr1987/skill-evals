@@ -213,7 +213,7 @@ Grader types:
 | Type | Checks |
 |---|---|
 | `regex` | A pattern in the final answer or in a file (`target: { source: file, path: ... }`). |
-| `llm` | A model judges the output against your `criteria` text. |
+| `llm` | A model judges the agent's final reply against your `criteria` text. It takes no `target`: to judge a file, ask the agent to print it in its reply and check the real file with a `regex` grader. |
 | `tool_used` | How often a tool was used. `tool: Skill` with `max: 0` asserts the skill did not fire. |
 | `tool_order` | One tool was used before another, e.g. `before: { tool: Grep }`, `after: { tool: Edit }`. |
 

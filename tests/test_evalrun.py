@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 
 from bench.config import SuiteConfig
-from bench.evalrun import build_command, config_problem_cases, parse_version, version_ok
+from bench.evalrun import build_command, config_problem_cases, load_error_cases, parse_version, version_ok
 
 
 def cfg(allow=("Write", "Edit"), ablation="with-without"):
@@ -45,6 +45,19 @@ class EvalRunTests(unittest.TestCase):
             '⚠ case "other": grader "x" cannot pass with the granted tools\n'
         )
         self.assertEqual(config_problem_cases(out), ["adds-post", "other"])
+
+    def test_load_error_cases(self):
+        out = (
+            "Wrote C:\\x\\r.json\n"
+            "✗ C:\\a b\\suites\\s\\evals\\probe-llm\\case.yaml: invalid case.yaml:   graders.0: Unrecognized key(s)\n"
+            "✗ /home/u/suites/s/evals/other/prompt.md: missing prompt\n"
+            "1 case file(s) failed to load\n"
+        )
+        self.assertEqual(load_error_cases(out), [
+            ["other", "missing prompt"],
+            ["probe-llm", "invalid case.yaml:   graders.0: Unrecognized key(s)"],
+        ])
+        self.assertEqual(load_error_cases("all good\n"), [])
 
 
 if __name__ == "__main__":

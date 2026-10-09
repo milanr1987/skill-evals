@@ -21,6 +21,7 @@ class SuiteRun:
     partial: bool = False
     tokens_total: int = 0
     config_problems: list[str] = field(default_factory=list)
+    load_errors: list[list[str]] = field(default_factory=list)
     source_hashes: dict[str, str] = field(default_factory=dict)
 
 
@@ -63,6 +64,7 @@ def run_tests(config: BenchConfig, names: list[str], suites_dir: Path, raw_dir: 
                 prefix.with_name(prefix.name + ".log").write_text(outcome.output, encoding="utf-8")
                 run.exit_code = outcome.exit_code
                 run.config_problems = evalrun.config_problem_cases(outcome.output)
+                run.load_errors = evalrun.load_error_cases(outcome.output)
                 result = _load(out_json)
                 records = collect_tokens(result, temp_root) if result else []
                 _write_json(prefix.with_name(prefix.name + ".tokens.json"), records)

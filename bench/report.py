@@ -117,6 +117,7 @@ def build_report(date: str, raw_dir: Path, suites_dir: Path, results_dir: Path) 
         if meta["status"] == "not-run":
             not_run.append((suite, "(whole suite)", meta.get("reason", "")))
             continue
+        not_run += [(suite, case, f"case file failed to load: {why}") for case, why in meta.get("load_errors", [])]
         result = _load(raw_dir / f"{date}-{suite}.json") or {}
         records = _load(raw_dir / f"{date}-{suite}.tokens.json") or []
         if result.get("claudeVersion"):
