@@ -11,6 +11,7 @@ graders:
   - name: skill-not-used
     type: tool_used
     tool: Skill
+    min: 0
     max: 0
   - name: answer
     type: regex
