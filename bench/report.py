@@ -39,6 +39,17 @@ class CaseRow:
     out_tokens: int | None
     total_tokens: int | None
     regression: bool = False
+    reason: str = ""
+
+
+def _run_error(case: dict) -> str:
+    """First agent error in either arm. Graders still score an errored run against the untouched scaffold."""
+    for runs in (case.get("arms") or {}).values():
+        for r in runs or []:
+            if r.get("error"):
+                text = " ".join(str(r["error"]).split())
+                return text if len(text) <= 160 else text[:157] + "..."
+    return ""
 
 
 def _case_tokens(records: list[dict], case: str) -> tuple[int | None, int | None]:
@@ -57,7 +68,8 @@ def case_rows(suite: str, result: dict, records: list[dict], suite_dir: Path, co
         runs = (case.get("arms") or {}).get("with") or []
         scores = [r["score"] for r in runs if isinstance(r.get("score"), (int, float))]
         passed = sum(1 for r in runs if r.get("passed") is True)
-        if name in config_problems or not scores:
+        error = _run_error(case)
+        if name in config_problems or not scores or error:
             status = "not-run"
         elif passed == len(runs):
             status = "pass"
@@ -70,6 +82,7 @@ def case_rows(suite: str, result: dict, records: list[dict], suite_dir: Path, co
             mean=sum(scores) / len(scores) if scores else None,
             delta=(case.get("aggregates") or {}).get("delta"),
             out_tokens=out, total_tokens=total,
+            reason=f"agent run failed: {error}" if error else "",
         ))
     return rows
 
@@ -136,7 +149,7 @@ def build_report(date: str, raw_dir: Path, suites_dir: Path, results_dir: Path) 
                 row.status = "invalid"
             row.regression = prev["cases"].get(f"{suite}/{row.case}") == "pass" and row.status == "fail"
             if row.status == "not-run":
-                not_run.append((suite, row.case, "config problem or interrupted"))
+                not_run.append((suite, row.case, row.reason or "config problem or interrupted"))
             rows.append(row)
 
     partial = [m["suite"] for m in metas if m.get("partial")]

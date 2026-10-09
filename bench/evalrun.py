@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -12,6 +13,16 @@ MIN_VERSION = (2, 1, 269)
 _VERSION = re.compile(r"(\d+)\.(\d+)\.(\d+)")
 _CONFIG_WARNING = re.compile(r'case "([^"]+)": grader "[^"]+" cannot pass')
 _LOAD_ERROR = re.compile(r"^✗ .*?([^\\/]+)[\\/](?:case\.yaml|prompt\.md): (.+)$", re.MULTILINE)
+
+
+SHELL_TOOLS = ("Bash", "PowerShell")
+
+
+def unconfined_shell_tools(cfg: SuiteConfig, platform: str = sys.platform) -> list[str]:
+    """Shell tools granted where claude plugin eval has no sandbox; every run would be refused."""
+    if platform != "win32":
+        return []
+    return [t for t in cfg.allow_tools if t.split("(", 1)[0] in SHELL_TOOLS]
 
 
 def parse_version(text: str) -> tuple[int, int, int] | None:

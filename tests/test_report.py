@@ -92,6 +92,14 @@ class ReportTests(unittest.TestCase):
         md = build_report("2026-10-08", self.raw, self.suites, self.results).read_text(encoding="utf-8")
         self.assertIn("| s | c-bad | case file failed to load: invalid case.yaml |", md)
 
+    def test_errored_agent_run_is_not_run(self):
+        errored = dict(run(0.7, False), error="exit 1: sandbox required but unavailable")
+        self.write_day("2026-10-08", [{"name": "c-pass", "arms": {"with": [errored], "without": [errored]},
+                                       "aggregates": {"delta": 0}}])
+        md = build_report("2026-10-08", self.raw, self.suites, self.results).read_text(encoding="utf-8")
+        self.assertIn("| s | c-pass | happy | 0/1 | 0.70 | 0 | - | - | not-run |", md)
+        self.assertIn("| s | c-pass | agent run failed: exit 1: sandbox required but unavailable |", md)
+
     def test_unknown_tokens_marked_incomplete(self):
         records = [{"case": "c-pass", "arm": "with", "index": 0, "usage": None, "models": []}]
         self.write_day("2026-10-08", [self.case("c-pass", [run(1, True)])], records=records)

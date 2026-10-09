@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 
 from bench.config import SuiteConfig
-from bench.evalrun import build_command, config_problem_cases, load_error_cases, parse_version, version_ok
+from bench.evalrun import build_command, config_problem_cases, load_error_cases, parse_version, unconfined_shell_tools, version_ok
 
 
 def cfg(allow=("Write", "Edit"), ablation="with-without"):
@@ -45,6 +45,12 @@ class EvalRunTests(unittest.TestCase):
             '⚠ case "other": grader "x" cannot pass with the granted tools\n'
         )
         self.assertEqual(config_problem_cases(out), ["adds-post", "other"])
+
+    def test_unconfined_shell_tools(self):
+        c = cfg(allow=("Write", "Bash", "PowerShell(git:*)"))
+        self.assertEqual(unconfined_shell_tools(c, "win32"), ["Bash", "PowerShell(git:*)"])
+        self.assertEqual(unconfined_shell_tools(c, "linux"), [])
+        self.assertEqual(unconfined_shell_tools(cfg(), "win32"), [])
 
     def test_load_error_cases(self):
         out = (

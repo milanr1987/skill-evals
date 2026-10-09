@@ -47,8 +47,12 @@ def run_tests(config: BenchConfig, names: list[str], suites_dir: Path, raw_dir: 
         prefix = raw_dir / f"{date}-{name}"
         out_json = prefix.with_name(prefix.name + ".json")
         run = SuiteRun(suite=name, status="not-run")
+        blocked = evalrun.unconfined_shell_tools(cfg)
         if spent >= token_budget:
             run.reason = "token budget"
+        elif blocked:
+            run.reason = (f"{', '.join(blocked)} in allow_tools: claude plugin eval refuses shell tools on Windows "
+                          "(no sandbox); remove them from allow_tools and the case files")
         else:
             try:
                 run.source_hashes = sync_suite(cfg, suites_dir)

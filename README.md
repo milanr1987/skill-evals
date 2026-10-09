@@ -17,6 +17,7 @@ Skill Eval Bench takes a skill, wraps it in a minimal plugin and runs Claude Cod
 - **Python 3.12 or newer.** No third-party packages.
 - **Claude Code 2.1.269 or newer**, with `claude` on your `PATH`. Check with `claude --version`.
 - **Bash.** Test cases can use a `scaffold.sh` script to create starting files. On Windows, install [Git for Windows](https://git-scm.com/download/win), which includes Git Bash.
+- **Windows: no shell tools for the agent.** `claude plugin eval` refuses to grant Bash or PowerShell to the model when it has no sandbox, which is the case on Windows. Every run of such a suite fails, so `run.py test` skips it with a clear reason. Leave shell tools out of `allow_tools` and the case files, or run on Linux/macOS (or WSL). Scaffold scripts are not affected.
 - A logged-in Claude Code account. Test runs use your normal Claude Code usage (subscription quota or API billing, depending on how you are logged in).
 
 ## Installation
@@ -135,7 +136,7 @@ dirs  = ['/home/me/notes/topics']
 [my-skill]
 source = '/home/me/.claude/skills/my-skill'   # folder containing SKILL.md
 tags = ["regression"]                         # selected by `run.py test --tag`
-allow_tools = ["Write", "Edit", "Bash"]       # tools the eval may give the model
+allow_tools = ["Write", "Edit"]               # tools the eval may give the model (no Bash/PowerShell on Windows)
 token_budget = 1000000                        # this suite's share of the default budget
 max_cost_usd = 5                              # passed to claude plugin eval
 # ablation = "none"                           # run only with the skill, no comparison
