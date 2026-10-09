@@ -68,6 +68,12 @@ class TestCmdTests(unittest.TestCase):
         self.assertEqual(list(self.meta("a")["source_hashes"]), ["sk"])
         self.assertFalse(any(self.temp_root.iterdir()))
 
+    def test_keep_traces_leaves_run_folder(self):
+        runs = run_tests(self.config, ["a"], self.suites, self.raw, "2026-10-08", 1, 10_000,
+                         "claude", self.temp_root, invoke=FakeEval(self.temp_root), keep_traces=True)
+        self.assertEqual(runs[0].tokens_total, 100)
+        self.assertTrue(any(self.temp_root.iterdir()))
+
     def test_protected_change_is_invalid(self):
         runs = self.run_names(["a"], FakeEval(self.temp_root, touch=self.protected))
         self.assertEqual(runs[0].status, "invalid")

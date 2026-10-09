@@ -37,7 +37,8 @@ def _load(path: Path):
 
 
 def run_tests(config: BenchConfig, names: list[str], suites_dir: Path, raw_dir: Path, date: str,
-              runs: int, token_budget: int, claude_exe: str, temp_root: Path, invoke=None) -> list[SuiteRun]:
+              runs: int, token_budget: int, claude_exe: str, temp_root: Path, invoke=None,
+              keep_traces: bool = False) -> list[SuiteRun]:
     invoke = invoke or evalrun.invoke_eval
     raw_dir.mkdir(parents=True, exist_ok=True)
     spent = 0
@@ -70,7 +71,7 @@ def run_tests(config: BenchConfig, names: list[str], suites_dir: Path, raw_dir: 
                 run.config_problems = evalrun.config_problem_cases(outcome.output)
                 run.load_errors = evalrun.load_error_cases(outcome.output)
                 result = _load(out_json)
-                records = collect_tokens(result, temp_root) if result else []
+                records = collect_tokens(result, temp_root, cleanup=not keep_traces) if result else []
                 _write_json(prefix.with_name(prefix.name + ".tokens.json"), records)
                 run.tokens_total = sum(t for t in (record_total(r) for r in records) if t is not None)
                 spent += run.tokens_total

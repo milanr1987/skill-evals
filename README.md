@@ -83,6 +83,7 @@ python run.py test                          # all suites tagged "regression"
 python run.py test --tag delta              # all suites with another tag
 python run.py test my-skill --runs 1        # fewer repetitions per case (default: 3)
 python run.py test --token-budget 2000000   # stop starting suites after this many tokens
+python run.py test my-skill --keep-traces   # keep each run's trace.jsonl to see every agent step
 ```
 
 `test` runs `sync` first, so the copy is always current. At the end it prints each suite's status and token count:
@@ -155,6 +156,10 @@ tags = ["delta"]
 ```
 
 Use single quotes for Windows paths so backslashes are kept as-is.
+
+Map paths to an explicit, unambiguous relative folder such as `./corpus/`. Avoid `memory/`: the agent may read it as Claude Code's own memory folder, which lies outside the test folder, so access is denied and the skill silently does nothing.
+
+When a case fails for no visible reason, rerun with `--keep-traces` and read `trace.jsonl` (its path is in `results/raw/<date>-<suite>.json`): denied tools and wrong paths show up there.
 
 `plugin:<plugin-id>/<skill>` sources are looked up in `installed_plugins.json` under `CLAUDE_CONFIG_DIR`, or `~/.claude` if that variable is not set.
 

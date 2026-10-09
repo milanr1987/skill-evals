@@ -57,6 +57,8 @@ def main(argv: list[str] | None = None, root: Path = ROOT) -> int:
     p_test.add_argument("--tag")
     p_test.add_argument("--runs", type=int, default=3)
     p_test.add_argument("--token-budget", type=int)
+    p_test.add_argument("--keep-traces", action="store_true",
+                        help="keep each run's temp folder and trace.jsonl (paths are in results/raw/*.json)")
     p_report = sub.add_parser("report", help="build the report for a date")
     p_report.add_argument("--date", default=_today())
     args = parser.parse_args(argv)
@@ -98,7 +100,8 @@ def main(argv: list[str] | None = None, root: Path = ROOT) -> int:
     budget = args.token_budget or sum(config.suites[n].token_budget for n in names)
     date = _today()
     print(f"running {', '.join(names)} (runs={args.runs}, token budget={budget}); uses Claude usage")
-    runs = run_tests(config, names, suites_dir, raw_dir, date, args.runs, budget, exe, Path(tempfile.gettempdir()))
+    runs = run_tests(config, names, suites_dir, raw_dir, date, args.runs, budget, exe, Path(tempfile.gettempdir()),
+                     keep_traces=args.keep_traces)
     report = build_report(date, raw_dir, suites_dir, root / "results")
     for r in runs:
         print(f"{r.suite}: {r.status} {r.reason} tokens={r.tokens_total}")
