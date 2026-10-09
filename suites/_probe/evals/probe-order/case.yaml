@@ -1,0 +1,16 @@
+schema_version: "1.1"
+name: probe-order
+tags: [gate]
+runs: 1
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Write, Edit, Glob, Grep, Skill]
+  prompt: |
+    Save this post to notes: Loops need a verifier.
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: grep-before-edit
+    type: tool_order
+    before: { tool: Grep }
+    after: { tool: Edit }

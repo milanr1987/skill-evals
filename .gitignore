@@ -1,0 +1,7 @@
+__pycache__/
+results/
+skills.local.toml
+suites/*/skills/
+suites/*/.source-hash
+suites/*/evals/*/scaffold.sh
+suites/*/evals/results/

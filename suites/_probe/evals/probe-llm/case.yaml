@@ -1,0 +1,18 @@
+schema_version: "1.1"
+name: probe-llm
+tags: [edge]
+runs: 1
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Write, Edit, Glob, Grep, Skill]
+  prompt: |
+    Save this post to notes: Small models can route tasks.
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: judge-file
+    type: llm
+    target: { source: file, path: notes.md }
+    criteria: |
+      Pass only if the file contains an entry numbered POST 2 whose body is exactly
+      "Small models can route tasks." and the earlier entry POST 1 is unchanged.

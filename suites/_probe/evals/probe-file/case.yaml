@@ -1,0 +1,22 @@
+schema_version: "1.1"
+name: probe-file
+tags: [happy]
+runs: 1
+execution:
+  max_turns: 8
+  allowed_tools: [Read, Write, Edit, Glob, Grep, Skill]
+  prompt: |
+    Save this post to notes: Agents need evals. Skills drift without tests.
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: heading
+    type: regex
+    pattern: '^## POST 2 '
+    flags: m
+    target: { source: file, path: notes.md }
+  - name: old-kept
+    type: regex
+    pattern: '^## POST 1 '
+    flags: m
+    target: { source: file, path: notes.md }

@@ -1,0 +1,29 @@
+# Skill Eval Bench configuration.
+#
+# Keep your own suites in skills.local.toml (git-ignored). When that file exists,
+# run.py uses it instead of this one. Relative paths resolve against this folder.
+
+# Files and folders that tests must never change. A change marks the run INVALID.
+# [protect]
+# files = ['/home/me/notes/memory.md']
+# dirs  = ['/home/me/notes/topics']          # every *.md file in the folder
+
+# Demo suite: a tiny skill that appends a numbered post to notes.md.
+[_probe]
+source = 'probe/append-note'
+tags = ["probe"]
+allow_tools = ["Write", "Edit"]
+token_budget = 600000
+max_cost_usd = 2
+
+# Example of a real suite:
+#
+# [my-skill]
+# source = '/home/me/.claude/skills/my-skill'
+# tags = ["regression"]
+# allow_tools = ["Write", "Edit", "Bash"]
+# token_budget = 1000000
+# max_cost_usd = 5
+#
+# [my-skill.path_map]
+# '/home/me/notes/' = "notes/"
